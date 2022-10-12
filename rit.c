@@ -8,12 +8,6 @@
 
 struct termios _DEFAULT_TERMIOS;
 
-void die(const char *s)
-{
-    perror(s);
-    exit(1);
-}
-
 /* Restore terminal to original state */
 void disableRawMode()
 {
@@ -48,6 +42,29 @@ void enableRawMode()
     tcsetattr(STDERR_FILENO, TCSAFLUSH, &rawMode);
 }
 
+char edReadKey()
+{
+    int nread;
+    char c;
+    while ((nread = read(STDIN_FILENO, &c, 1)) != 1)
+    {
+        _ExecOrDie((nread == -1 && errno != EAGAIN), "read");
+    }
+    return c;
+}
+
+void edProcessKeyPress()
+{
+    char c = edReadKey();
+
+    switch (c)
+    {
+    case CTRL_KEY('q'):
+        exit(0);
+        break;
+    }
+}
+
 int main()
 {
 
@@ -55,18 +72,7 @@ int main()
 
     while (1)
     {
-        char c = '\0';
-        read(STDIN_FILENO, &c, 1);
-        if (iscntrl(c))
-        {
-            printf("%d\r\n", c);
-        }
-        else
-        {
-            printf("%d ('%c')\r\n", c, c);
-        }
-        if (c == 'q')
-            break;
+        edProcessKeyPress();
     }
 
     return 0;
