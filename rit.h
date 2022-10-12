@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <termios.h>
 
+#define CTRL_KEY(k) ((k)&0x1f)
+
 static inline void _ExecOrDie(bool funcReturn, const char *err)
 {
     if (!funcReturn)
